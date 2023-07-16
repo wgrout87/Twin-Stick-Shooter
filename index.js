@@ -16,6 +16,9 @@ let controllerIndex = null;
 let playerVelocity = { x: 0, y: 0 };
 let bulletTrajectory = { x: 0, y: 0 };
 
+
+
+// BEGIN GAMEPAD FUNCTIONALITY
 window.addEventListener("gamepadconnected", (event) => {
     handleConnectDisconnect(event, true);
 });
@@ -77,9 +80,11 @@ function handleSticks(axes) {
 //     }
 // };
 
+// END GAMEPAD FUNCTIONALITY
 
 
-// Player Class
+
+// PLAYER CLASS
 class Player {
     constructor(origin, radius, color) {
         this.x = origin.x
@@ -106,7 +111,9 @@ class Player {
     }
 }
 
-// Projectile Class
+
+
+// PROJECTILE CLASS
 class Projectile {
     constructor(radius, color, velocity) {
         this.x = playerCenter.x
@@ -130,6 +137,45 @@ class Projectile {
     }
 }
 
+
+
+// ENEMY CLASS
+class Enemy {
+    constructor(x, y, radius, color, velocity) {
+        this.x = x
+        this.y = y
+        this.radius = radius
+        this.color = color
+        this.velocity = velocity
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+
+    updateVelocity() {
+        const angle = Math.atan2(playerCenter.y - this.y, playerCenter.x - this.x);
+        const velocity = {
+            // Will yield a result that is in the range -1 to 1
+            x: Math.cos(angle),
+            y: Math.sin(angle)
+        }
+        this.velocity = velocity;
+    }
+
+    update() {
+        this.draw();
+        this.updateVelocity();
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
+    }
+}
+
+
+
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
@@ -137,6 +183,23 @@ const player = new Player(playerCenter, 30, 'blue');
 player.draw();
 
 const projectiles = [];
+const enemies = [];
+
+function spawnEnemies() {
+    setInterval(() => {
+        const x = 100;
+        const y = 100;
+        const radius = 30;
+        const color = "dimgrey";
+        const angle = Math.atan2(playerCenter.y - y, playerCenter.x - x);
+        const velocity = {
+            // Will yield a result that is in the range -1 to 1
+            x: Math.cos(angle),
+            y: Math.sin(angle)
+        }
+        enemies.push(new Enemy(x, y, radius, color, velocity));
+    }, 1000);
+};
 
 function gameLoop() {
     if (controllerIndex !== null) {
@@ -151,6 +214,9 @@ function gameLoop() {
     projectiles.forEach(projectile => {
         projectile.update();
     })
+    enemies.forEach(enemy => {
+        enemy.update();
+    })
 }
 
 window.addEventListener('click', (event) => {
@@ -164,4 +230,5 @@ window.addEventListener('click', (event) => {
 })
 
 gameLoop();
+spawnEnemies();
 
