@@ -142,11 +142,11 @@ class Projectile {
 // ENEMY CLASS
 class Enemy {
     constructor(x, y, radius, color, velocity) {
-        this.x = x
-        this.y = y
-        this.radius = radius
-        this.color = color
-        this.velocity = velocity
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.velocity = velocity;
     }
 
     draw() {
@@ -157,6 +157,7 @@ class Enemy {
     }
 
     updateVelocity() {
+        // When determining the angle for two points always subtract from the destination
         const angle = Math.atan2(playerCenter.y - this.y, playerCenter.x - this.x);
         const velocity = {
             // Will yield a result that is in the range -1 to 1
@@ -187,9 +188,18 @@ const enemies = [];
 
 function spawnEnemies() {
     setInterval(() => {
-        const x = 100;
-        const y = 100;
         const radius = 30;
+
+        let x;
+        let y;
+
+        if (Math.random() < 0.5) {
+            x = Math.random() < .5 ? 0 - radius : canvas.width + radius;
+            y = Math.random() * canvas.height;
+        } else {
+            x = Math.random() * canvas.width;
+            y = Math.random() < .5 ? 0 - radius : canvas.height + radius;
+        }
         const color = "dimgrey";
         const angle = Math.atan2(playerCenter.y - y, playerCenter.x - x);
         const velocity = {
