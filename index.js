@@ -8,6 +8,7 @@ const playerMovementSpeed = 5;
 const bulletMovementSpeed = 7;
 const firingInterval = 100;
 
+let playGame = false;
 let ableToFire = true;
 setInterval(() => { ableToFire = true }, firingInterval);
 let playerCenter = { x: canvas.width / 2, y: canvas.height / 2 }
@@ -25,7 +26,6 @@ window.addEventListener("gamepaddisconnected", (event) => {
 
 function handleConnectDisconnect(event, connected) {
     const gamepad = event.gamepad;
-    console.log(gamepad);
 
     if (connected) {
         controllerIndex = gamepad.index;
@@ -33,6 +33,12 @@ function handleConnectDisconnect(event, connected) {
         controllerIndex = null;
     }
 };
+
+function handleButtons(buttons) {
+    if (buttons[0].pressed) {
+        playGame = true;
+    }
+}
 
 // This function determines the movement of the player and where to fire bullets
 function handleSticks(axes) {
@@ -135,7 +141,7 @@ const projectiles = [];
 function gameLoop() {
     if (controllerIndex !== null) {
         const gamepad = navigator.getGamepads()[controllerIndex];
-        // handleButtons(gamepad.buttons);
+        handleButtons(gamepad.buttons);
         handleSticks(gamepad.axes);
         // handleRumble(gamepad);
     }
