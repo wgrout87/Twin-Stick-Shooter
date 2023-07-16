@@ -4,9 +4,12 @@ const ctx = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-const playerMovementSpeed = 3;
-const bulletMovementSpeed = 5;
+const playerMovementSpeed = 5;
+const bulletMovementSpeed = 7;
+const firingInterval = 100;
 
+let ableToFire = true;
+setInterval(() => { ableToFire = true }, firingInterval);
 let playerCenter = { x: canvas.width / 2, y: canvas.height / 2 }
 let controllerIndex = null;
 let playerVelocity = { x: 0, y: 0 };
@@ -41,14 +44,15 @@ function handleSticks(axes) {
     }
     if ([axes[2], axes[3]].some(axis => axis > .2 || axis < -.2)) {
         const angle = Math.atan2(axes[3], axes[2]);
-        console.log(angle);
         bulletTrajectory = {
             // Will yield a result that is in the range -1 to 1
             x: Math.cos(angle) * bulletMovementSpeed,
             y: Math.sin(angle) * bulletMovementSpeed
         }
-        // bulletTrajectory = { x: axes[2] * bulletMovementSpeed, y: axes[3] * bulletMovementSpeed };
-        projectiles.push(new Projectile(5, 'red', bulletTrajectory));
+        if (ableToFire) {
+            ableToFire = false;
+            projectiles.push(new Projectile(5, 'red', bulletTrajectory));
+        }
     }
 };
 
