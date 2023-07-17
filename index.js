@@ -61,7 +61,7 @@ function handleSticks(axes) {
         }
         if (ableToFire) {
             ableToFire = false;
-            projectiles.push(new Projectile(5, 'red', bulletTrajectory));
+            projectiles.push(new Projectile(5, 'white', bulletTrajectory));
             console.log(projectiles);
         }
     }
@@ -182,7 +182,7 @@ class Enemy {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(playerCenter, 30, 'blue');
+const player = new Player(playerCenter, 30, 'white');
 player.draw();
 
 const projectiles = [];
@@ -221,33 +221,14 @@ function gameLoop() {
         // handleRumble(gamepad);
     }
     animationId = requestAnimationFrame(gameLoop);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     player.update();
     projectiles.forEach((projectile, index) => {
         projectile.update();
 
-        if (projectile.x - projectile.radius < 0) {
-            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
-            setTimeout(() => {
-                projectiles.splice(index, 1)
-            }, 0)
-        }
-
-        if (projectile.x - projectile.radius > canvas.width) {
-            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
-            setTimeout(() => {
-                projectiles.splice(index, 1)
-            }, 0)
-        }
-
-        if (projectile.y - projectile.radius < 0) {
-            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
-            setTimeout(() => {
-                projectiles.splice(index, 1)
-            }, 0)
-        }
-
-        if (projectile.y - projectile.radius > canvas.height) {
+        // Remove projectiles that have left the canvas
+        if (projectile.x + projectile.radius < 0 || projectile.x - projectile.radius > canvas.width || projectile.y + projectile.radius < 0 || projectile.y - projectile.radius > canvas.height) {
             // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
             setTimeout(() => {
                 projectiles.splice(index, 1)
@@ -285,7 +266,7 @@ window.addEventListener('click', (event) => {
         x: Math.cos(angle),
         y: Math.sin(angle)
     }
-    projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, 'red', velocity));
+    projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, 'white', velocity));
 })
 
 gameLoop();
