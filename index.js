@@ -30,6 +30,7 @@ window.addEventListener("gamepaddisconnected", (event) => {
 
 function handleConnectDisconnect(event, connected) {
     const gamepad = event.gamepad;
+    console.log(gamepad);
 
     if (connected) {
         controllerIndex = gamepad.index;
@@ -62,7 +63,6 @@ function handleSticks(axes) {
         if (ableToFire) {
             ableToFire = false;
             projectiles.push(new Projectile(5, 'white', bulletTrajectory));
-            console.log(projectiles);
         }
     }
 };
@@ -202,7 +202,7 @@ function spawnEnemies() {
             x = Math.random() * canvas.width;
             y = Math.random() < .5 ? 0 - radius : canvas.height + radius;
         }
-        const color = "dimgrey";
+        const color = `hsl(${Math.random() * 360}, 50%, 50%)`;
         const angle = Math.atan2(playerCenter.y - y, playerCenter.x - x);
         const velocity = {
             // Will yield a result that is in the range -1 to 1
@@ -247,13 +247,18 @@ function gameLoop() {
         projectiles.forEach((projectile, projectileIndex) => {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
 
-            // Objects touch?
+            // When Projectiles touch enemies
             if (dist - enemy.radius - projectile.radius < 1) {
-                // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
-                setTimeout(() => {
-                    enemies.splice(index, 1);
+                if (enemy.radius > 10) {
+                    enemy.radius = Math.max(10, enemy.radius - 5);
                     projectiles.splice(projectileIndex, 1)
-                }, 0)
+                } else {
+                    // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+                    setTimeout(() => {
+                        enemies.splice(index, 1);
+                        projectiles.splice(projectileIndex, 1)
+                    }, 0)
+                }
             }
         })
     })
