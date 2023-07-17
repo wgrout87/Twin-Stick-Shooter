@@ -1,3 +1,5 @@
+console.log(gsap);
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -249,8 +251,11 @@ function gameLoop() {
 
             // When Projectiles touch enemies
             if (dist - enemy.radius - projectile.radius < 1) {
-                if (enemy.radius > 10) {
-                    enemy.radius = Math.max(10, enemy.radius - 5);
+                if (enemy.radius - 10 > 5) {
+                    gsap.to(enemy, {
+                        radius: enemy.radius - 10
+                    })
+                    // enemy.radius = Math.max(10, enemy.radius - 5);
                     projectiles.splice(projectileIndex, 1)
                 } else {
                     // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
