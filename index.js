@@ -8,6 +8,7 @@ const playerMovementSpeed = 5;
 const bulletMovementSpeed = 7;
 const firingInterval = 100;
 
+let animationId;
 let playGame = false;
 let ableToFire = true;
 setInterval(() => { ableToFire = true }, firingInterval);
@@ -61,6 +62,7 @@ function handleSticks(axes) {
         if (ableToFire) {
             ableToFire = false;
             projectiles.push(new Projectile(5, 'red', bulletTrajectory));
+            console.log(projectiles);
         }
     }
 };
@@ -188,7 +190,7 @@ const enemies = [];
 
 function spawnEnemies() {
     setInterval(() => {
-        const radius = Math.random() * (30 - 4) + 4;
+        const radius = Math.random() * (30 - 10) + 10;
 
         let x;
         let y;
@@ -218,20 +220,55 @@ function gameLoop() {
         handleSticks(gamepad.axes);
         // handleRumble(gamepad);
     }
-    requestAnimationFrame(gameLoop);
+    animationId = requestAnimationFrame(gameLoop);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     player.update();
-    projectiles.forEach(projectile => {
+    projectiles.forEach((projectile, index) => {
         projectile.update();
+
+        if (projectile.x - projectile.radius < 0) {
+            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+            setTimeout(() => {
+                projectiles.splice(index, 1)
+            }, 0)
+        }
+
+        if (projectile.x - projectile.radius > canvas.width) {
+            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+            setTimeout(() => {
+                projectiles.splice(index, 1)
+            }, 0)
+        }
+
+        if (projectile.y - projectile.radius < 0) {
+            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+            setTimeout(() => {
+                projectiles.splice(index, 1)
+            }, 0)
+        }
+
+        if (projectile.y - projectile.radius > canvas.height) {
+            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+            setTimeout(() => {
+                projectiles.splice(index, 1)
+            }, 0)
+        }
     })
     enemies.forEach((enemy, index) => {
         enemy.update();
+
+        const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+        if (dist - enemy.radius - player.radius < 1) {
+            console.log("Game Over!");
+            // cancelAnimationFrame(animationId);
+        };
 
         projectiles.forEach((projectile, projectileIndex) => {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
 
             // Objects touch?
             if (dist - enemy.radius - projectile.radius < 1) {
+                // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
                 setTimeout(() => {
                     enemies.splice(index, 1);
                     projectiles.splice(projectileIndex, 1)
