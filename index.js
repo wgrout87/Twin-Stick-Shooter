@@ -6,12 +6,18 @@ const ctx = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
+const scoreEl = document.getElementById("points");
+
+const shipRadius = 15;
 const playerMovementSpeed = 5;
 const bulletMovementSpeed = 7;
 const firingInterval = 100;
+const particleSpeed = 7;
+const friction = 0.98;
 
-let animationId;
+let animationId
 let playGame = false;
+let score = 0;
 let ableToFire = true;
 setInterval(() => { ableToFire = true }, firingInterval);
 let playerCenter = { x: canvas.width / 2, y: canvas.height / 2 }
@@ -62,7 +68,7 @@ function handleSticks(axes) {
             x: Math.cos(angle) * bulletMovementSpeed,
             y: Math.sin(angle) * bulletMovementSpeed
         }
-        if (ableToFire) {
+        if (ableToFire && playGame) {
             ableToFire = false;
             projectiles.push(new Projectile(5, 'white', bulletTrajectory));
         }
@@ -105,12 +111,14 @@ class Player {
     }
 
     update() {
-        this.draw();
-        this.x = this.x + playerVelocity.x;
-        this.y = this.y + playerVelocity.y;
-        playerCenter = {
-            x: this.x,
-            y: this.y
+        if (playGame) {
+            this.draw();
+            this.x = this.x + playerVelocity.x;
+            this.y = this.y + playerVelocity.y;
+            playerCenter = {
+                x: this.x,
+                y: this.y
+            }
         }
     }
 }
@@ -135,9 +143,11 @@ class Projectile {
     }
 
     update() {
-        this.draw();
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
+        if (playGame) {
+            this.draw();
+            this.x = this.x + this.velocity.x;
+            this.y = this.y + this.velocity.y;
+        }
     }
 }
 
@@ -171,11 +181,24 @@ class Enemy {
         this.velocity = velocity;
     }
 
+    updateVelocity() {
+        // When determining the angle for two points always subtract from the destination
+        const angle = Math.atan2(playerCenter.y - this.y, playerCenter.x - this.x);
+        const velocity = {
+            // Will yield a result that is in the range -1 to 1
+            x: Math.cos(angle),
+            y: Math.sin(angle)
+        }
+        this.velocity = velocity;
+    }
+
     update() {
-        this.draw();
-        this.updateVelocity();
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
+        if (playGame) {
+            this.draw();
+            this.updateVelocity();
+            this.x = this.x + this.velocity.x;
+            this.y = this.y + this.velocity.y;
+        }
     }
 }
 
@@ -203,10 +226,14 @@ class Particle {
     }
 
     update() {
-        this.draw();
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-        this.alpha -= 0.01;
+        if (playGame) {
+            this.draw();
+            this.velocity.x *= friction;
+            this.velocity.y *= friction;
+            this.x = this.x + this.velocity.x;
+            this.y = this.y + this.velocity.y;
+            this.alpha -= 0.01;
+        }
     }
 }
 
@@ -215,7 +242,7 @@ class Particle {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(playerCenter, 30, 'white');
+const player = new Player(playerCenter, shipRadius, 'white');
 player.draw();
 
 const projectiles = [];
@@ -245,6 +272,27 @@ function spawnEnemies() {
         }
         enemies.push(new Enemy(x, y, radius, color, velocity));
     }, 1000);
+};
+
+function updateScore(newScore) {
+    score = newScore;
+    scoreEl.textContent = newScore.toString();
+};
+
+function resetGame() {
+    playGame = false;
+    while (projectiles.length > 0) {
+        projectiles.pop();
+    };
+    while (enemies.length > 0) {
+        enemies.pop();
+    };
+    while (particles.length > 0) {
+        particles.pop();
+    };
+    player.x = canvas.width / 2;
+    player.y = canvas.height / 2;
+    updateScore(0);
 };
 
 function gameLoop() {
@@ -288,7 +336,7 @@ function gameLoop() {
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         if (dist - enemy.radius - player.radius < 1) {
             console.log("Game Over!");
-            // cancelAnimationFrame(animationId);
+            resetGame();
         };
 
         projectiles.forEach((projectile, projectileIndex) => {
@@ -298,16 +346,22 @@ function gameLoop() {
             if (dist - enemy.radius - projectile.radius < 1) {
                 // Create explosions
                 for (let i = 0; i < enemy.radius * 2; i++) {
-                    particles.push(new Particle(projectile.x, projectile.y, Math.random() * 2, enemy.color, { x: Math.random() - 0.5, y: Math.random() - 0.5 }))
+                    particles.push(new Particle(projectile.x, projectile.y, Math.random() * 2, enemy.color, { x: (Math.random() - 0.5) * (Math.random() * particleSpeed), y: (Math.random() - 0.5) * (Math.random() * particleSpeed) }))
                 }
 
                 if (enemy.radius - 10 > 5) {
+                    // Increase score
+                    updateScore(score + 100);
+
                     gsap.to(enemy, {
                         radius: enemy.radius - 10
                     })
                     // enemy.radius = Math.max(10, enemy.radius - 5);
                     projectiles.splice(projectileIndex, 1)
                 } else {
+                    // Increase score more for killed enemy
+                    updateScore(score + 250);
+
                     // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
                     setTimeout(() => {
                         enemies.splice(index, 1);
@@ -331,4 +385,3 @@ function gameLoop() {
 
 gameLoop();
 spawnEnemies();
-

@@ -1,3 +1,20 @@
 body {
     margin: 0;
+    overflow-y: hidden;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+#score {
+    color: whitesmoke;
+    margin: 0.5rem;
+    user-select: none;
+}
+
+#canvas {
+    display: block;
 }
