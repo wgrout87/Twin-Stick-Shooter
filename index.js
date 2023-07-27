@@ -284,7 +284,7 @@ function updateScore(newScore) {
 
 function resetGame() {
     playGame = false;
-    modalEl.style.display = 'block';
+    modalEl.style.display = 'flex';
     while (projectiles.length > 0) {
         projectiles.pop();
     };
