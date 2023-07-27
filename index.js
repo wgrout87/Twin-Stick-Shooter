@@ -52,6 +52,7 @@ function handleConnectDisconnect(event, connected) {
 function handleButtons(buttons) {
     if (buttons[0].pressed) {
         playGame = true;
+        modalEl.style.display = 'none';
     }
 }
 
@@ -283,6 +284,7 @@ function updateScore(newScore) {
 
 function resetGame() {
     playGame = false;
+    modalEl.style.display = 'block';
     while (projectiles.length > 0) {
         projectiles.pop();
     };
