@@ -52,6 +52,7 @@ function handleConnectDisconnect(event, connected) {
 
 function handleButtons(buttons) {
     if (buttons[0].pressed) {
+        resetGame();
         playGame = true;
         updateScore(0);
         modalEl.style.display = 'none';
@@ -287,7 +288,6 @@ function updateScore(newScore) {
 
 function resetGame() {
     playGame = false;
-    modalEl.style.display = 'flex';
     while (projectiles.length > 0) {
         projectiles.pop();
     };
@@ -342,7 +342,9 @@ function gameLoop() {
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         if (dist - enemy.radius - player.radius < 1) {
             console.log("Game Over!");
-            resetGame();
+            cancelAnimationFrame(animationId);
+            playGame = false;
+            modalEl.style.display = 'flex';
         };
 
         projectiles.forEach((projectile, projectileIndex) => {
@@ -395,5 +397,6 @@ spawnEnemies();
 startGameBtnEl.addEventListener("click", () => {
     modalEl.style.display = 'none';
     updateScore(0);
+    resetGame();
     playGame = true;
 })
