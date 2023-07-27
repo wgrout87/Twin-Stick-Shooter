@@ -6,7 +6,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
+const modalEl = document.getElementById("modalEl");
 const scoreEl = document.getElementById("points");
+const startGameBtnEl = document.getElementById("startGameBtn");
 
 const shipRadius = 15;
 const playerMovementSpeed = 5;
@@ -385,3 +387,8 @@ function gameLoop() {
 
 gameLoop();
 spawnEnemies();
+
+startGameBtnEl.addEventListener("click", () => {
+    modalEl.style.display = 'none';
+    playGame = true;
+})
