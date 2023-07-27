@@ -6,7 +6,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-const modalEl = document.getElementById("modalEl");
+const modalEl = document.getElementById("modal");
+const modalScoreEl = document.getElementById("modalScore");
 const scoreEl = document.getElementById("points");
 const startGameBtnEl = document.getElementById("startGameBtn");
 
@@ -52,6 +53,7 @@ function handleConnectDisconnect(event, connected) {
 function handleButtons(buttons) {
     if (buttons[0].pressed) {
         playGame = true;
+        updateScore(0);
         modalEl.style.display = 'none';
     }
 }
@@ -280,6 +282,7 @@ function spawnEnemies() {
 function updateScore(newScore) {
     score = newScore;
     scoreEl.textContent = newScore.toString();
+    modalScoreEl.textContent = newScore.toString();
 };
 
 function resetGame() {
@@ -296,7 +299,6 @@ function resetGame() {
     };
     player.x = canvas.width / 2;
     player.y = canvas.height / 2;
-    updateScore(0);
 };
 
 function gameLoop() {
@@ -392,5 +394,6 @@ spawnEnemies();
 
 startGameBtnEl.addEventListener("click", () => {
     modalEl.style.display = 'none';
+    updateScore(0);
     playGame = true;
 })
