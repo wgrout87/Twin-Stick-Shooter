@@ -1,5 +1,3 @@
-console.log(gsap);
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -40,7 +38,6 @@ window.addEventListener("gamepaddisconnected", (event) => {
 
 function handleConnectDisconnect(event, connected) {
     const gamepad = event.gamepad;
-    console.log(gamepad);
 
     if (connected) {
         controllerIndex = gamepad.index;
@@ -51,10 +48,12 @@ function handleConnectDisconnect(event, connected) {
 
 function handleButtons(buttons) {
     if (buttons[0].pressed) {
-        resetGame();
-        playGame = true;
-        updateScore(0);
-        modalEl.style.display = 'none';
+        if (!playGame) {
+            resetGame();
+            playGame = true;
+            updateScore(0);
+            modalEl.style.display = 'none';
+        }
     }
 }
 
