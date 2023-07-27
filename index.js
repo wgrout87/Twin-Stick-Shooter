@@ -50,8 +50,6 @@ function handleButtons(buttons) {
     if (buttons[0].pressed) {
         if (!playGame) {
             resetGame();
-            playGame = true;
-            updateScore(0);
             modalEl.style.display = 'none';
         }
     }
@@ -285,7 +283,6 @@ function updateScore(newScore) {
 };
 
 function resetGame() {
-    playGame = false;
     while (projectiles.length > 0) {
         projectiles.pop();
     };
@@ -297,6 +294,8 @@ function resetGame() {
     };
     player.x = canvas.width / 2;
     player.y = canvas.height / 2;
+    playGame = true;
+    updateScore(0);
 };
 
 function gameLoop() {
@@ -394,7 +393,5 @@ spawnEnemies();
 
 startGameBtnEl.addEventListener("click", () => {
     modalEl.style.display = 'none';
-    updateScore(0);
     resetGame();
-    playGame = true;
 })
