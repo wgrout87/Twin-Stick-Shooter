@@ -18,7 +18,6 @@ const firingInterval = 100;
 const particleSpeed = 7;
 const friction = 0.98;
 
-let animationId
 let playGame = false;
 let score = 0;
 let ableToFire = true;
@@ -248,12 +247,12 @@ class Particle {
 const x = canvas.width / 2;
 const y = canvas.height / 2;
 
-const player = new Player(playerCenter, shipRadius, 'white');
+let player = new Player(playerCenter, shipRadius, 'white');
 player.draw();
 
-const projectiles = [];
-const enemies = [];
-const particles = [];
+let projectiles = [];
+let enemies = [];
+let particles = [];
 
 function spawnEnemies() {
     setInterval(() => {
@@ -308,77 +307,77 @@ function gameLoop() {
         handleSticks(gamepad.axes);
         // handleRumble(gamepad);
     }
-    animationId = requestAnimationFrame(gameLoop);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    player.update();
+    requestAnimationFrame(gameLoop);
+    if (playGame) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        player.update();
 
-    // Render all particles
-    particles.forEach((particle, index) => {
-        if (particle.alpha <= 0) {
-            particles.splice(index, 1);
-        } else {
-            particle.update();
-        };
-    })
+        // Render all particles
+        particles.forEach((particle, index) => {
+            if (particle.alpha <= 0) {
+                particles.splice(index, 1);
+            } else {
+                particle.update();
+            };
+        })
 
-    // Render all projectiles
-    projectiles.forEach((projectile, index) => {
-        projectile.update();
+        // Render all projectiles
+        projectiles.forEach((projectile, index) => {
+            projectile.update();
 
-        // Remove projectiles that have left the canvas
-        if (projectile.x + projectile.radius < 0 || projectile.x - projectile.radius > canvas.width || projectile.y + projectile.radius < 0 || projectile.y - projectile.radius > canvas.height) {
-            // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
-            setTimeout(() => {
-                projectiles.splice(index, 1)
-            }, 0)
-        }
-    })
-
-    // Render all enemies
-    enemies.forEach((enemy, index) => {
-        enemy.update();
-
-        const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
-        if (dist - enemy.radius - player.radius < 1) {
-            console.log("Game Over!");
-            cancelAnimationFrame(animationId);
-            playGame = false;
-            modalEl.style.display = 'flex';
-        };
-
-        projectiles.forEach((projectile, projectileIndex) => {
-            const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
-
-            // When Projectile touches enemies
-            if (dist - enemy.radius - projectile.radius < 1) {
-                // Create explosions
-                for (let i = 0; i < enemy.radius * 2; i++) {
-                    particles.push(new Particle(projectile.x, projectile.y, Math.random() * 2, enemy.color, { x: (Math.random() - 0.5) * (Math.random() * particleSpeed), y: (Math.random() - 0.5) * (Math.random() * particleSpeed) }))
-                }
-
-                if (enemy.radius - 10 > 5) {
-                    // Increase score
-                    updateScore(score + 100);
-
-                    gsap.to(enemy, {
-                        radius: enemy.radius - 10
-                    })
-                    // enemy.radius = Math.max(10, enemy.radius - 5);
-                    projectiles.splice(projectileIndex, 1)
-                } else {
-                    // Increase score more for killed enemy
-                    updateScore(score + 250);
-
-                    // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
-                    setTimeout(() => {
-                        enemies.splice(index, 1);
-                        projectiles.splice(projectileIndex, 1)
-                    }, 0)
-                }
+            // Remove projectiles that have left the canvas
+            if (projectile.x + projectile.radius < 0 || projectile.x - projectile.radius > canvas.width || projectile.y + projectile.radius < 0 || projectile.y - projectile.radius > canvas.height) {
+                // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+                setTimeout(() => {
+                    projectiles.splice(index, 1)
+                }, 0)
             }
         })
-    })
+
+        // Render all enemies
+        enemies.forEach((enemy, index) => {
+            enemy.update();
+
+            const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+            if (dist - enemy.radius - player.radius < 1) {
+                playGame = false;
+                modalEl.style.display = 'flex';
+            };
+
+            projectiles.forEach((projectile, projectileIndex) => {
+                const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+
+                // When Projectile touches enemies
+                if (dist - enemy.radius - projectile.radius < 1) {
+                    // Create explosions
+                    for (let i = 0; i < enemy.radius * 2; i++) {
+                        particles.push(new Particle(projectile.x, projectile.y, Math.random() * 2, enemy.color, { x: (Math.random() - 0.5) * (Math.random() * particleSpeed), y: (Math.random() - 0.5) * (Math.random() * particleSpeed) }))
+                    }
+
+                    if (enemy.radius - 10 > 5) {
+                        // Increase score
+                        updateScore(score + 100);
+
+                        gsap.to(enemy, {
+                            radius: enemy.radius - 10
+                        })
+                        // enemy.radius = Math.max(10, enemy.radius - 5);
+                        projectiles.splice(projectileIndex, 1)
+                    } else {
+                        // Increase score more for killed enemy
+                        updateScore(score + 250);
+
+                        // This timeout causes the enemy to be removed one fram later to eliminate a stutter in the animation of other enemies
+                        setTimeout(() => {
+                            enemies.splice(index, 1);
+                            projectiles.splice(projectileIndex, 1)
+                        }, 0)
+                    }
+                }
+            })
+        })
+    }
 }
 
 // window.addEventListener('click', (event) => {
