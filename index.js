@@ -17,7 +17,8 @@ const particleSpeed = 7;
 const friction = 0.98;
 
 let playGame = false;
-let pausable = true;
+let togglePausePossible = true;
+let startBtnReleased = false;
 let score = 0;
 let ableToFire = true;
 setInterval(() => { ableToFire = true }, firingInterval);
@@ -55,13 +56,20 @@ function handleButtons(buttons) {
         }
     };
 
-    if (buttons[9].pressed && pausable) {
-        pausable = false;
+    if (buttons[9].pressed && togglePausePossible && playGame) {
+        togglePausePossible = false;
+        startBtnReleased = false;
         playGame = false;
     };
 
-    if (!buttons[9].pressed && !pausable) {
-        pausable = true;
+    if (!buttons[9].pressed && !togglePausePossible) {
+        togglePausePossible = true;
+        startBtnReleased = true;
+    };
+
+    if (buttons[9].pressed && togglePausePossible && startBtnReleased) {
+        playGame = true;
+        togglePausePossible = false;
     };
 }
 
