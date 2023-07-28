@@ -17,6 +17,7 @@ const particleSpeed = 7;
 const friction = 0.98;
 
 let playGame = false;
+let pausable = true;
 let score = 0;
 let ableToFire = true;
 setInterval(() => { ableToFire = true }, firingInterval);
@@ -52,7 +53,16 @@ function handleButtons(buttons) {
             resetGame();
             modalEl.style.display = 'none';
         }
-    }
+    };
+
+    if (buttons[9].pressed && pausable) {
+        pausable = false;
+        playGame = false;
+    };
+
+    if (!buttons[9].pressed && !pausable) {
+        pausable = true;
+    };
 }
 
 // This function determines the movement of the player and where to fire bullets
